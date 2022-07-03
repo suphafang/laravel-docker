@@ -1,0 +1,42 @@
+version: '3'
+services:
+    app:
+        build: ./docker/php
+        working_dir: /var/www/laravel
+        volumes:
+            - ./:/var/www/laravel
+    nginx:
+        build: ./docker/nginx
+        working_dir: /var/www/laravel
+        volumes_from:
+            - app
+        ports:
+            - 8443:443
+    composer:
+        build: ./docker/php
+        working_dir: /var/www/laravel
+        volumes_from:
+            - app
+        command: "composer install"
+    database:
+        image: mysql:8.0
+        restart: always
+        environment:
+            MYSQL_DATABASE: ${DB_DATABASE}
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+        volumes:
+            - ./docker/mysql/data:/var/lib/mysql
+        ports:
+            - 3306:3306
+    # database:
+    #     image: postgres
+    #     restart: always
+    #     environment:
+    #         POSTGRES_USER: ${DB_USERNAME}
+    #         POSTGRES_PASSWORD: ${DB_PASSWORD}
+    #         POSTGRES_DB: ${DB_DATABASE}
+    #     volumes:
+    #         - ./docker/postgresql/data:/var/lib/postgresql/data
+    #     ports:
+    #         - '5432:5432'
+
